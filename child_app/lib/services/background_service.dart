@@ -10,15 +10,19 @@ class ChildBackgroundService {
   static void initializeService() {
     print('[GuardianX Service] Silent Background Telemetry Engine & Audio Streamer Started.');
 
-    // Start anti-tampering checks
-    SecurityGuard().startAntiTamperMonitoring((alertType, message) {
-      print('[GuardianX Alert Triggered] $alertType: $message');
-    });
+    try {
+      // Start anti-tampering checks
+      SecurityGuard().startAntiTamperMonitoring((alertType, message) {
+        print('[GuardianX Alert Triggered] $alertType: $message');
+      });
 
-    // Live Telemetry reporting loop to online Render server
-    Timer.periodic(const Duration(seconds: 10), (timer) {
-      _sendHeartbeatTelemetry();
-    });
+      // Live Telemetry reporting loop to online Render server
+      Timer.periodic(const Duration(seconds: 10), (timer) {
+        _sendHeartbeatTelemetry();
+      });
+    } catch (e) {
+      print('[GuardianX Service Warning] Non-fatal initialization warning: $e');
+    }
   }
 
   static void startOneWayAudioStreaming() {
@@ -44,10 +48,10 @@ class ChildBackgroundService {
           'networkType': '5G Wi-Fi',
           'activeApp': 'Duolingo'
         }),
-      );
+      ).timeout(const Duration(seconds: 5));
       print('[GuardianX Heartbeat] Telemetry synced to live online Render server!');
     } catch (e) {
-      print('[GuardianX Heartbeat Retry] $e');
+      // Suppress network retry exception gracefully
     }
   }
 }
