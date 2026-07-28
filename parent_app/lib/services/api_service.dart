@@ -4,7 +4,7 @@ import '../models/models.dart';
 
 class ApiService {
   final String baseUrl;
-  ApiService({this.baseUrl = 'http://localhost:4000/api/v1'});
+  ApiService({this.baseUrl = 'https://guardianx-ai-0d9y.onrender.com/api/v1'});
 
   Future<ChildDevice> fetchChildTelemetry() async {
     final response = await http.get(Uri.parse('$baseUrl/device/telemetry'));
@@ -12,7 +12,7 @@ class ApiService {
       final data = jsonDecode(response.body)['telemetry'];
       return ChildDevice(
         childId: data['childId'] ?? 'child-5501',
-        name: 'Alex Jenkins',
+        name: data['name'] ?? 'Alex Jenkins',
         deviceName: data['deviceName'] ?? "Alex's Samsung S24 Ultra",
         isOnline: data['isOnline'] ?? true,
         batteryLevel: data['batteryLevel'] ?? 82,

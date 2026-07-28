@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 
 class SocketService {
   final String baseUrl;
-  SocketService({this.baseUrl = 'http://localhost:4000'});
+  SocketService({this.baseUrl = 'https://guardianx-ai-0d9y.onrender.com'});
 
   StreamController<Map<String, dynamic>> telemetryStreamController = StreamController.broadcast();
   StreamController<Map<String, dynamic>> locationStreamController = StreamController.broadcast();
@@ -12,8 +12,7 @@ class SocketService {
   StreamController<Map<String, dynamic>> alertStreamController = StreamController.broadcast();
 
   void initSocketConnection(String familyId) {
-    print('[SocketService] Realtime WebSocket tunnel initiated for family: $familyId');
-    // Periodically poll live socket server state to ensure real data synchronization
+    print('[SocketService] Realtime WebSocket tunnel initiated for family: $familyId on $baseUrl');
     Timer.periodic(const Duration(seconds: 3), (timer) async {
       try {
         final res = await http.get(Uri.parse('$baseUrl/api/v1/device/telemetry'));
