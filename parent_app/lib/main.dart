@@ -41,7 +41,8 @@ class MainNavigationFrame extends StatefulWidget {
 }
 
 class _MainNavigationFrameState extends State<MainNavigationFrame> {
-  bool _isLoggedIn = true;
+  // Enforce Real Authentication: Always show Login Screen first on app launch!
+  bool _isLoggedIn = false;
   int _currentIndex = 0;
 
   void _navigateToTab(int index) {

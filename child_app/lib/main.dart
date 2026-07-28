@@ -17,8 +17,8 @@ class GuardianXChildApp extends StatefulWidget {
 
 class _GuardianXChildAppState extends State<GuardianXChildApp> {
   bool _isPaired = false;
-  String _parentEmail = 'parent@gmail.com';
-  String _pairCode = 'GX-9901';
+  String _parentEmail = '';
+  String _pairCode = '';
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +90,7 @@ class ChildActiveProtectionView extends StatelessWidget {
                   ),
                   child: Column(
                     children: const [
-                      Text('● Background Telemetry: LIVE', style: TextStyle(color: Color(0xFF2ED573), fontSize: 12, fontWeight: FontWeight.bold)),
+                      Text('● Background Telemetry: LIVE SYNC ACTIVE', style: TextStyle(color: Color(0xFF2ED573), fontSize: 12, fontWeight: FontWeight.bold)),
                       SizedBox(height: 4),
                       Text('● GPS Tracking & App Blocker: ACTIVE', style: TextStyle(color: Colors.white70, fontSize: 12)),
                     ],
