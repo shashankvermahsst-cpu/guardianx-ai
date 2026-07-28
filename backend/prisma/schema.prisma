@@ -1,0 +1,247 @@
+// GuardianX AI - Production Prisma Schema
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  PARENT
+  CHILD
+  ADMIN
+}
+
+enum AlertSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum SubPlan {
+  FREE_TRIAL
+  MONTHLY
+  QUARTERLY
+  YEARLY
+  FAMILY_PLAN
+}
+
+model User {
+  id                String         @id @default(uuid())
+  email             String         @unique
+  passwordHash      String
+  fullName          String
+  phoneNumber       String?
+  role              Role           @default(PARENT)
+  is2FAEnabled      Boolean        @default(false)
+  twoFactorSecret   String?
+  isEmailVerified   Boolean        @default(false)
+  profileImageUrl   String?
+  familyId          String?
+  family            Family?        @relation(fields: [familyId], references: [id])
+  refreshTokens     RefreshToken[]
+  subscriptions     Subscription[]
+  supportTickets    SupportTicket[]
+  auditLogs         AuditLog[]
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+}
+
+model Family {
+  id          String   @id @default(uuid())
+  name        String
+  pairCode    String   @unique
+  parents     User[]
+  children    Child[]
+  createdAt   DateTime @default(now())
+}
+
+model Child {
+  id              String         @id @default(uuid())
+  familyId        String
+  family          Family         @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  name            String
+  age             Int?
+  avatarUrl       String?
+  isPaired        Boolean        @default(false)
+  devices         Device[]
+  geofences       Geofence[]
+  contentFilter   ContentFilter?
+  screenTimeRule  ScreenTimeRule?
+  alerts          Alert[]
+  aiInsights      AIInsight[]
+  createdAt       DateTime       @default(now())
+}
+
+model Device {
+  id                 String       @id @default(uuid())
+  childId            String       @unique
+  child              Child        @relation(fields: [childId], references: [id], onDelete: Cascade)
+  deviceName         String
+  model              String?
+  osVersion          String?
+  fcmToken           String?
+  deviceFingerprint  String       @unique
+  isOnline           Boolean      @default(false)
+  batteryLevel       Int          @default(100)
+  isCharging         Boolean      @default(false)
+  temperature        Float        @default(35.0)
+  networkType        String       @default("WIFI")
+  isVpnActive        Boolean      @default(false)
+  isRooted           Boolean      @default(false)
+  lastSeen           DateTime     @default(now())
+  locations          Location[]
+  installedApps      InstalledApp[]
+  appUsages          AppUsage[]
+  createdAt          DateTime     @default(now())
+}
+
+model Location {
+  id          String   @id @default(uuid())
+  deviceId    String
+  device      Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  latitude    Float
+  longitude   Float
+  altitude    Float?
+  accuracy    Float?
+  speed       Float    @default(0.0)
+  address     String?
+  recordedAt  DateTime @default(now())
+
+  @@index([deviceId, recordedAt])
+}
+
+model Geofence {
+  id            String   @id @default(uuid())
+  childId       String
+  child         Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
+  name          String
+  latitude      Float
+  longitude     Float
+  radiusMeters  Int      @default(200)
+  alertOnEntry  Boolean  @default(true)
+  alertOnExit   Boolean  @default(true)
+  createdAt     DateTime @default(now())
+}
+
+model InstalledApp {
+  id                 String   @id @default(uuid())
+  deviceId           String
+  device             Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  packageName        String
+  appName            String
+  category           String   @default("General")
+  isBlocked          Boolean  @default(false)
+  dailyLimitMinutes  Int      @default(0)
+  createdAt          DateTime @default(now())
+
+  @@unique([deviceId, packageName])
+}
+
+model AppUsage {
+  id                 String   @id @default(uuid())
+  deviceId           String
+  device             Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  packageName        String
+  usageDate          DateTime @default(now())
+  screenTimeSeconds  Int      @default(0)
+  launchCount        Int      @default(0)
+  updatedAt          DateTime @updatedAt
+}
+
+model ContentFilter {
+  id                 String   @id @default(uuid())
+  childId            String   @unique
+  child              Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
+  blockAdult         Boolean  @default(true)
+  blockGambling      Boolean  @default(true)
+  blockViolence      Boolean  @default(true)
+  blockSocialMedia   Boolean  @default(false)
+  safeSearchEnabled  Boolean  @default(true)
+  customBlockedUrls  String[]
+  updatedAt          DateTime @updatedAt
+}
+
+model ScreenTimeRule {
+  id                  String   @id @default(uuid())
+  childId             String   @unique
+  child               Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
+  dailyLimitMinutes   Int      @default(180)
+  bedtimeStart        String   @default("21:30")
+  bedtimeEnd          String   @default("06:30")
+  schoolModeEnabled   Boolean  @default(false)
+  schoolStart         String   @default("08:00")
+  schoolEnd           String   @default("15:00")
+  updatedAt           DateTime @updatedAt
+}
+
+model Alert {
+  id          String        @id @default(uuid())
+  childId     String
+  child       Child         @relation(fields: [childId], references: [id], onDelete: Cascade)
+  type        String
+  severity    AlertSeverity @default(MEDIUM)
+  title       String
+  message     String
+  isRead      Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+}
+
+model AIInsight {
+  id                  String   @id @default(uuid())
+  childId             String
+  child               Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
+  reportDate          DateTime @default(now())
+  addictionRiskScore  Int      @default(20)
+  gamingHours         Float    @default(0.0)
+  socialMediaHours    Float    @default(0.0)
+  educationalHours    Float    @default(0.0)
+  riskLevel           String   @default("Low Risk")
+  aiSummary           String?
+  createdAt           DateTime @default(now())
+}
+
+model Subscription {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan           SubPlan  @default(FREE_TRIAL)
+  purchaseToken  String?
+  orderId        String?
+  amountUsd      Float    @default(0.0)
+  status         String   @default("active")
+  expiresAt      DateTime?
+  createdAt      DateTime @default(now())
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model SupportTicket {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject   String
+  message   String
+  status    String   @default("OPEN")
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String
+  ipAddress String?
+  details   String?
+  createdAt DateTime @default(now())
+}

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GuardianX AI - Protect. Monitor. Guide. Parental Control</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">
+      <span style="font-size: 28px;">🛡️</span>
+      <span>GuardianX <span style="color: var(--accent-blue);">AI</span></span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#demo">Live Demo</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="../admin_dashboard/index.html" target="_blank">Admin Dashboard</a></li>
+    </ul>
+    <button class="btn-primary" onclick="alert('Google Play Store Download Link: GuardianX AI Parent')">Get App on Play Store</button>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="hero">
+    <div class="badge">🤖 AI-POWERED PARENTAL PROTECTION ENGINE</div>
+    <h1>Protect. Monitor. Guide.</h1>
+    <p>Next-generation parental safety platform featuring real-time GPS, silent screen mirroring, one-way environmental audio, custom app blasters, and conversational AI addiction risk prediction.</p>
+    <div style="display: flex; gap: 16px; justify-content: center;">
+      <button class="btn-primary" style="font-size: 16px; padding: 14px 36px;">📱 Download Parent App</button>
+      <button class="btn-primary" style="background: rgba(255,255,255,0.1); border: 1px solid var(--border-color);" onclick="document.getElementById('demo').scrollIntoView({behavior: 'smooth'})">🎮 Try Live Interactive Demo</button>
+    </div>
+  </header>
+
+  <!-- Interactive Parent App Web Preview Section -->
+  <section id="demo" class="app-preview-container">
+    <div style="text-align: center; margin-bottom: 24px;">
+      <h2 style="font-size: 28px; margin-bottom: 8px;">Live Interactive Parent Portal Simulator</h2>
+      <p style="color: var(--text-sub);">Test GuardianX AI live controls right here in your browser.</p>
+    </div>
+
+    <!-- Live Preview Frame -->
+    <div style="background: #0f0c20; border-radius: 20px; padding: 24px; border: 1px solid var(--border-color);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px;">
+        <div>
+          <h3 style="color: #fff;">Alex's Phone (Samsung S24 Ultra)</h3>
+          <span style="color: var(--accent-blue); font-size: 12px;">● Status: Online (5G Wi-Fi) • Battery: 78% ⚡ • Temp: 34.8°C</span>
+        </div>
+        <button class="btn-primary" style="padding: 8px 16px; font-size: 12px;" id="btn-sync">↻ Sync Telemetry</button>
+      </div>
+
+      <!-- Feature Interactive Tabs -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px;">
+        <button class="btn-primary" style="background: var(--primary-purple);" onclick="switchDemoView('location')">📍 Live GPS Tracking</button>
+        <button class="btn-primary" style="background: var(--card-bg); border: 1px solid var(--border-color);" onclick="switchDemoView('screen')">📺 Screen Mirroring</button>
+        <button class="btn-primary" style="background: var(--card-bg); border: 1px solid var(--border-color);" onclick="switchDemoView('camera')">📷 Remote Camera</button>
+        <button class="btn-primary" style="background: var(--card-bg); border: 1px solid var(--border-color);" onclick="switchDemoView('ai')">🤖 AI Assistant Chat</button>
+      </div>
+
+      <!-- Demo View Display Box -->
+      <div id="demo-display-box" style="background: #1b1736; border-radius: 16px; padding: 24px; min-height: 240px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        <div id="demo-content-area" style="text-align: center;">
+          <span style="font-size: 48px;">📍</span>
+          <h3 style="margin-top: 12px;">Live GPS Tracking Active</h3>
+          <p style="color: var(--text-sub); font-size: 14px;">Location: 742 Evergreen Terrace, San Francisco, CA</p>
+          <span style="color: #2ed573; font-size: 12px; margin-top: 6px; display: inline-block;">✓ Inside School SafeZone Radius (200m)</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature Matrix -->
+  <section id="features" class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">📡</div>
+      <h3>Live Screen Mirroring</h3>
+      <p>High quality, ultra-low latency live stream of child screen activity with pause/resume controls.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📸</div>
+      <h3>Remote Front/Rear Camera</h3>
+      <p>Silent HD snapshot capture and environment viewing with instant AES-256 encrypted relay.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎙️</div>
+      <h3>One-Way Audio Listening</h3>
+      <p>Listen to child environment in real-time with AI background noise reduction filter.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🚫</div>
+      <h3>App Blocker & Screen Time</h3>
+      <p>Lock TikTok, YouTube, Games instantly. Set Bedtime locks and School Focus mode schedules.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🤖</div>
+      <h3>AI Addiction Risk Prediction</h3>
+      <p>Natural language AI Assistant answers parent questions & generates daily usage risk scores.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🛡️</div>
+      <h3>Anti-Tamper & Security Guard</h3>
+      <p>Instant alerts for VPN bypass attempts, Root detection, SIM card swap, or factory reset signals.</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2026 GuardianX AI Technologies. Protect. Monitor. Guide. All rights reserved.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

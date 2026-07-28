@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GuardianX AI - Super Admin Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">🛡️</div>
+      <div>
+        <div class="brand-title">GuardianX AI</div>
+        <div class="brand-tag">Super Admin</div>
+      </div>
+    </div>
+
+    <ul class="nav-list">
+      <li class="nav-item active"><a href="#dashboard">📊 Dashboard</a></li>
+      <li class="nav-item"><a href="#users">👥 User Management</a></li>
+      <li class="nav-item"><a href="#subscriptions">💳 Subscriptions & MRR</a></li>
+      <li class="nav-item"><a href="#security">🛡️ Security & Alerts</a></li>
+      <li class="nav-item"><a href="#ai">🤖 AI Analytics Engine</a></li>
+      <li class="nav-item"><a href="#tickets">🎫 Support Tickets</a></li>
+      <li class="nav-item"><a href="#settings">⚙️ System Config</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="main-wrapper">
+    <header class="top-bar">
+      <div class="page-title">
+        <h1>Executive Dashboard</h1>
+        <p style="color: var(--text-sub); font-size: 13px;">Real-time telemetry and parental platform health metrics</p>
+      </div>
+      <div style="display: flex; gap: 12px; align-items: center;">
+        <span class="status-badge status-active">● Server Cluster: ONLINE</span>
+      </div>
+    </header>
+
+    <!-- Metrics Row -->
+    <section class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-title">Total Parent Accounts</div>
+        <div class="metric-value" id="val-parents">14,280</div>
+        <div class="metric-trend">↑ +12.4% this month</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-title">Active Child Devices</div>
+        <div class="metric-value" id="val-devices">21,950</div>
+        <div class="metric-trend">↑ +18.2% this month</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-title">Monthly Recurring Revenue (MRR)</div>
+        <div class="metric-value" id="val-mrr">$128,400</div>
+        <div class="metric-trend">↑ +8.7% revenue growth</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-title">Tamper/VPN Interceptions (24h)</div>
+        <div class="metric-value" id="val-alerts">342</div>
+        <div class="metric-trend" style="color: var(--accent-blue);">Shield Protection Active</div>
+      </div>
+    </section>
+
+    <!-- User Management Table -->
+    <section class="table-card">
+      <h2>Recent Parent Subscriptions</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Parent Name</th>
+            <th>Email</th>
+            <th>Subscription Plan</th>
+            <th>Child Devices</th>
+            <th>Status</th>
+            <th>Joined Date</th>
+          </tr>
+        </thead>
+        <tbody id="users-tbody">
+          <!-- Populated by app.js -->
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
