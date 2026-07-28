@@ -41,7 +41,6 @@ class MainNavigationFrame extends StatefulWidget {
 }
 
 class _MainNavigationFrameState extends State<MainNavigationFrame> {
-  // Enforce Real Authentication: Always show Login Screen first on app launch!
   bool _isLoggedIn = false;
   int _currentIndex = 0;
 
@@ -60,12 +59,12 @@ class _MainNavigationFrameState extends State<MainNavigationFrame> {
       const LocationView(),
       const ScreenMirrorView(),
       const RemoteCameraView(),
+      const AIInsightsView(),
+      ProfileView(onLogout: () => setState(() => _isLoggedIn = false)),
       const RemoteAudioView(),
       const AppUsageView(),
       const ScreenTimeView(),
-      const AIInsightsView(),
       const SubscriptionView(),
-      ProfileView(onLogout: () => setState(() => _isLoggedIn = false)),
       const PairChildView(),
       const SettingsView(),
     ];
@@ -81,7 +80,7 @@ class _MainNavigationFrameState extends State<MainNavigationFrame> {
           border: Border(top: BorderSide(color: Color(0x336C5CE7))),
         ),
         child: BottomNavigationBar(
-          currentIndex: _currentIndex < 5 ? _currentIndex : 0,
+          currentIndex: _currentIndex < 6 ? _currentIndex : 0,
           onTap: (index) => setState(() => _currentIndex = index),
           type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.transparent,
@@ -93,6 +92,7 @@ class _MainNavigationFrameState extends State<MainNavigationFrame> {
             BottomNavigationBarItem(icon: Icon(Icons.screen_share_rounded), label: 'Mirror'),
             BottomNavigationBarItem(icon: Icon(Icons.camera_alt_rounded), label: 'Camera'),
             BottomNavigationBarItem(icon: Icon(Icons.psychology_rounded), label: 'AI Insights'),
+            BottomNavigationBarItem(icon: Icon(Icons.person_rounded), label: 'Profile'),
           ],
         ),
       ),
