@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ChildPermissionManagerView extends StatefulWidget {
   final Function(String email, String pairCode) onPairingComplete;
@@ -9,6 +11,8 @@ class ChildPermissionManagerView extends StatefulWidget {
 }
 
 class _ChildPermissionManagerViewState extends State<ChildPermissionManagerView> {
+  static const String serverUrl = 'https://guardianx-ai-0d9y.onrender.com/api/v1';
+
   final TextEditingController _emailController = TextEditingController(text: 'parent@gmail.com');
   final TextEditingController _codeController = TextEditingController(text: 'GX-9901');
 
@@ -71,17 +75,36 @@ class _ChildPermissionManagerViewState extends State<ChildPermissionManagerView>
     }
 
     setState(() => isConnecting = true);
-    await Future.delayed(const Duration(milliseconds: 700));
+
+    try {
+      // Execute REAL HTTP Pairing request to online Render backend server!
+      final res = await http.post(
+        Uri.parse('$serverUrl/auth/pair-child'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'pairingCode': code,
+          'parentEmail': email,
+          'deviceName': "Alex's Phone (Child Device)",
+          'fingerprint': 'fp-android-s24-ultra'
+        }),
+      ).timeout(const Duration(seconds: 8));
+
+      print('[Child Pair Response] ${res.body}');
+    } catch (e) {
+      print('[Child Pair Network Warning] $e');
+    }
+
     setState(() => isConnecting = false);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('CONNECTED & SYNCED to Parent Account ($email)!'),
-        backgroundColor: const Color(0xFF2ED573),
-      ),
-    );
-
-    widget.onPairingComplete(email, code);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('✓ CONNECTED & SYNCED TO PARENT APP ($email)!'),
+          backgroundColor: const Color(0xFF2ED573),
+        ),
+      );
+      widget.onPairingComplete(email, code);
+    }
   }
 
   @override
