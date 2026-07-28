@@ -25,7 +25,7 @@ class AuthRepository {
     };
   }
 
-  Future<Map<String, dynamic>> generatePairCode() async {
+  Future<Map<String, dynamic>> generatePairingCode([String? token]) async {
     try {
       final res = await http.post(
         Uri.parse('$baseUrl/auth/generate-pair-code'),
@@ -39,5 +39,9 @@ class AuthRepository {
       print('[AuthRepository Pair Code Warning] $e');
     }
     return {'success': true, 'pairCode': 'GX-9901', 'qrData': 'guardianx://pair?code=GX-9901'};
+  }
+
+  Future<Map<String, dynamic>> generatePairCode() async {
+    return generatePairingCode();
   }
 }
