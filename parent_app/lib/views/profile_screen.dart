@@ -60,36 +60,45 @@ class ProfileView extends StatelessWidget {
                 decoration: AppTheme.glassmorphicCardDecoration,
                 child: Column(
                   children: [
-                    ListTile(
-                      leading: const CircleAvatar(
-                        backgroundColor: AppTheme.primaryPurple,
-                        child: Text('A', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    Material(
+                      color: Colors.transparent,
+                      child: ListTile(
+                        leading: const CircleAvatar(
+                          backgroundColor: AppTheme.primaryPurple,
+                          child: Text('A', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        ),
+                        title: const Text('Alex Jenkins', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                        subtitle: const Text("Samsung S24 Ultra • CONNECTED & SYNCED", style: TextStyle(color: AppTheme.successGreen, fontSize: 11, fontWeight: FontWeight.bold)),
+                        trailing: const Icon(Icons.check_circle, color: AppTheme.successGreen),
                       ),
-                      title: const Text('Alex Jenkins', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-                      subtitle: const Text("Samsung S24 Ultra • CONNECTED & SYNCED", style: TextStyle(color: AppTheme.successGreen, fontSize: 11, fontWeight: FontWeight.bold)),
-                      trailing: const Icon(Icons.check_circle, color: AppTheme.successGreen),
                     ),
                     const Divider(color: Colors.white12),
-                    ListTile(
-                      leading: const CircleAvatar(
-                        backgroundColor: AppTheme.accentBlue,
-                        child: Text('M', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                    Material(
+                      color: Colors.transparent,
+                      child: ListTile(
+                        leading: const CircleAvatar(
+                          backgroundColor: AppTheme.accentBlue,
+                          child: Text('M', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                        ),
+                        title: const Text('Maya Jenkins (2nd Child)', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                        subtitle: const Text("Google Pixel 8 • CONNECTED & SYNCED", style: TextStyle(color: AppTheme.successGreen, fontSize: 11, fontWeight: FontWeight.bold)),
+                        trailing: const Icon(Icons.check_circle, color: AppTheme.successGreen),
                       ),
-                      title: const Text('Maya Jenkins (2nd Child)', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-                      subtitle: const Text("Google Pixel 8 • CONNECTED & SYNCED", style: TextStyle(color: AppTheme.successGreen, fontSize: 11, fontWeight: FontWeight.bold)),
-                      trailing: const Icon(Icons.check_circle, color: AppTheme.successGreen),
                     ),
                     const Divider(color: Colors.white12),
-                    ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: AppTheme.accentBlue.withOpacity(0.2),
-                        child: const Icon(Icons.add, color: AppTheme.accentBlue),
+                    Material(
+                      color: Colors.transparent,
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: AppTheme.accentBlue.withOpacity(0.2),
+                          child: const Icon(Icons.add, color: AppTheme.accentBlue),
+                        ),
+                        title: const Text('Link Another Child Device', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.accentBlue)),
+                        subtitle: const Text('Generate pair code or scan QR code', style: TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const PairChildView()));
+                        },
                       ),
-                      title: const Text('Link Another Child Device', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.accentBlue)),
-                      subtitle: const Text('Generate pair code or scan QR code', style: TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
-                      onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const PairChildView()));
-                      },
                     ),
                   ],
                 ),
@@ -102,16 +111,22 @@ class ProfileView extends StatelessWidget {
                 decoration: AppTheme.glassmorphicCardDecoration,
                 child: Column(
                   children: [
-                    ListTile(
-                      leading: const Icon(Icons.verified_user, color: AppTheme.successGreen),
-                      title: const Text('Authentication Status', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                      subtitle: const Text('Authenticated via Gmail (parent@gmail.com)', style: TextStyle(color: AppTheme.textSecondary, fontSize: 11)),
+                    const Material(
+                      color: Colors.transparent,
+                      child: ListTile(
+                        leading: Icon(Icons.verified_user, color: AppTheme.successGreen),
+                        title: Text('Authentication Status', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        subtitle: Text('Authenticated via Gmail (parent@gmail.com)', style: TextStyle(color: AppTheme.textSecondary, fontSize: 11)),
+                      ),
                     ),
                     const Divider(color: Colors.white12),
-                    ListTile(
-                      leading: const Icon(Icons.logout, color: AppTheme.alertRed),
-                      title: const Text('Log Out', style: TextStyle(color: AppTheme.alertRed, fontWeight: FontWeight.bold)),
-                      onTap: onLogout,
+                    Material(
+                      color: Colors.transparent,
+                      child: ListTile(
+                        leading: const Icon(Icons.logout, color: AppTheme.alertRed),
+                        title: const Text('Log Out', style: TextStyle(color: AppTheme.alertRed, fontWeight: FontWeight.bold)),
+                        onTap: onLogout,
+                      ),
                     ),
                   ],
                 ),

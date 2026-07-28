@@ -134,8 +134,12 @@ class _HomeDashboardViewState extends ConsumerState<HomeDashboardView> {
                           },
                         ),
                         IconButton(
-                          icon: const Icon(Icons.notifications_active_outlined, color: Colors.white),
-                          onPressed: () {},
+                          icon: const Icon(Icons.refresh),
+                          tooltip: 'Refresh Child Connection',
+                          onPressed: () {
+                            ref.refresh(familyChildrenProvider);
+                            ref.refresh(childTelemetryProvider);
+                          },
                         ),
                       ],
                     ),
@@ -241,17 +245,20 @@ class _HomeDashboardViewState extends ConsumerState<HomeDashboardView> {
                             child: Container(
                               margin: const EdgeInsets.only(bottom: 10),
                               decoration: AppTheme.glassmorphicCardDecoration,
-                              child: ListTile(
-                                leading: CircleAvatar(
-                                  backgroundColor: alert.severity == 'high' ? AppTheme.alertRed.withOpacity(0.2) : AppTheme.accentBlue.withOpacity(0.2),
-                                  child: Icon(
-                                    alert.severity == 'high' ? Icons.warning_amber_rounded : Icons.shield_outlined,
-                                    color: alert.severity == 'high' ? AppTheme.alertRed : AppTheme.accentBlue,
+                              child: Material(
+                                color: Colors.transparent,
+                                child: ListTile(
+                                  leading: CircleAvatar(
+                                    backgroundColor: alert.severity == 'high' ? AppTheme.alertRed.withOpacity(0.2) : AppTheme.accentBlue.withOpacity(0.2),
+                                    child: Icon(
+                                      alert.severity == 'high' ? Icons.warning_amber_rounded : Icons.shield_outlined,
+                                      color: alert.severity == 'high' ? AppTheme.alertRed : AppTheme.accentBlue,
+                                    ),
                                   ),
+                                  title: Text(alert.title, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                                  subtitle: Text(alert.message, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+                                  trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.white54),
                                 ),
-                                title: Text(alert.title, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-                                subtitle: Text(alert.message, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
-                                trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.white54),
                               ),
                             ),
                           )).toList(),
