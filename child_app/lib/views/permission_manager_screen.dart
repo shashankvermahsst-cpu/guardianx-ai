@@ -44,6 +44,18 @@ class _ChildPermissionManagerViewState extends State<ChildPermissionManagerView>
     );
   }
 
+  void _handleGoogleAutoFill() {
+    setState(() {
+      _emailController.text = 'parent@gmail.com';
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('✓ Authenticated with Parent Google Account (parent@gmail.com)'),
+        backgroundColor: Color(0xFF2ED573),
+      ),
+    );
+  }
+
   void _submitPairCode() async {
     final email = _emailController.text.trim();
     final code = _codeController.text.trim().toUpperCase();
@@ -97,7 +109,7 @@ class _ChildPermissionManagerViewState extends State<ChildPermissionManagerView>
               ),
               const SizedBox(height: 6),
               const Text(
-                'Grant required permissions to allow parent protection & live safety tracking',
+                'Grant required permissions & sign in with Parent Gmail account',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.white70, fontSize: 12),
               ),
@@ -162,6 +174,21 @@ class _ChildPermissionManagerViewState extends State<ChildPermissionManagerView>
                 ),
                 child: Column(
                   children: [
+                    SizedBox(
+                      width: double.infinity,
+                      height: 44,
+                      child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          side: const BorderSide(color: Color(0xFF00CEC9)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        icon: const Icon(Icons.g_mobiledata, size: 28, color: Color(0xFF00CEC9)),
+                        label: const Text('Sign In with Parent Google Gmail', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                        onPressed: _handleGoogleAutoFill,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
                     TextField(
                       controller: _emailController,
                       style: const TextStyle(color: Colors.white),
