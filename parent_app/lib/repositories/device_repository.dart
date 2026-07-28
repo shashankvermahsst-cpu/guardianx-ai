@@ -4,11 +4,11 @@ import '../models/models.dart';
 
 class DeviceRepository {
   final String baseUrl;
-  DeviceRepository({this.baseUrl = 'http://localhost:4000/api/v1'});
+  DeviceRepository({this.baseUrl = 'https://guardianx-ai-0d9y.onrender.com/api/v1'});
 
   Future<List<ChildDevice>> fetchFamilyChildren() async {
     try {
-      final res = await http.get(Uri.parse('$baseUrl/family/children'));
+      final res = await http.get(Uri.parse('$baseUrl/family/children')).timeout(const Duration(seconds: 5));
       if (res.statusCode == 200) {
         final list = jsonDecode(res.body)['children'] as List;
         return list.map((data) => ChildDevice(
@@ -35,7 +35,7 @@ class DeviceRepository {
 
   Future<ChildDevice> fetchTelemetry({String childId = 'child-5501'}) async {
     try {
-      final res = await http.get(Uri.parse('$baseUrl/device/telemetry?childId=$childId'));
+      final res = await http.get(Uri.parse('$baseUrl/device/telemetry?childId=$childId')).timeout(const Duration(seconds: 5));
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body)['telemetry'];
         return ChildDevice(
@@ -59,7 +59,7 @@ class DeviceRepository {
 
   Future<List<AppUsageItem>> fetchAppUsages() async {
     try {
-      final res = await http.get(Uri.parse('$baseUrl/device/app-usage'));
+      final res = await http.get(Uri.parse('$baseUrl/device/app-usage')).timeout(const Duration(seconds: 5));
       if (res.statusCode == 200) {
         final list = jsonDecode(res.body)['apps'] as List;
         return list.map((item) => AppUsageItem(
