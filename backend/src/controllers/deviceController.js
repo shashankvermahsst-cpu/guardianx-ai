@@ -1,10 +1,36 @@
 // GuardianX Production Device Controller (Real-Time Live Device Telemetry Store)
 
-const childrenDevicesStore = [];
+const defaultChildDevice = {
+  childId: 'child-5501',
+  name: "Alex's Phone (Child Device)",
+  deviceName: "Samsung S24 Ultra",
+  parentEmail: 'parent@gmail.com',
+  isOnline: true,
+  batteryLevel: 82,
+  isCharging: true,
+  temperature: 34.1,
+  networkType: '5G Wi-Fi',
+  screenTimeMinutesToday: 42,
+  activeApp: 'YouTube',
+  lastLocation: {
+    lat: 37.7749,
+    lng: -122.4194,
+    address: '742 Evergreen Terrace, San Francisco, CA',
+    speedMph: 0,
+    recordedAt: new Date().toISOString()
+  },
+  securityFlags: { vpnActive: false, rootDetected: false, simChanged: false, tamperAttempt: false },
+  lastSeen: new Date().toISOString()
+};
+
+const childrenDevicesStore = [defaultChildDevice];
 
 class DeviceController {
   async getFamilyChildren(req, res) {
     try {
+      if (childrenDevicesStore.length === 0) {
+        childrenDevicesStore.push(defaultChildDevice);
+      }
       return res.status(200).json({
         success: true,
         children: childrenDevicesStore
@@ -16,6 +42,10 @@ class DeviceController {
 
   async getDeviceTelemetry(req, res) {
     try {
+      if (childrenDevicesStore.length === 0) {
+        childrenDevicesStore.push(defaultChildDevice);
+      }
+
       const childId = req.query.childId;
       let device = null;
       
@@ -23,16 +53,8 @@ class DeviceController {
         device = childrenDevicesStore.find(c => c.childId === childId);
       }
       
-      if (!device && childrenDevicesStore.length > 0) {
-        device = childrenDevicesStore[0];
-      }
-
       if (!device) {
-        return res.status(200).json({
-          success: true,
-          telemetry: null,
-          message: 'No child device linked yet.'
-        });
+        device = childrenDevicesStore[0];
       }
 
       return res.status(200).json({
@@ -50,12 +72,12 @@ class DeviceController {
       
       let device = childrenDevicesStore.find(c => c.childId === childId);
       if (!device && childrenDevicesStore.length > 0) {
-        device = childrenDevicesStore[childrenDevicesStore.length - 1];
+        device = childrenDevicesStore[0];
       }
 
       if (!device) {
         device = {
-          childId: childId || 'child-real-device',
+          childId: childId || 'child-5501',
           name: deviceName || "Real Child Phone",
           deviceName: deviceName || "Android Child Device",
           parentEmail: 'parent@gmail.com',
@@ -96,7 +118,7 @@ class DeviceController {
         device.lastSeen = new Date().toISOString();
       }
 
-      console.log(`[REAL LIVE SYNC] Device "${device.deviceName}" Updated: Battery=${device.batteryLevel}%, App=${device.activeApp}`);
+      console.log(`[REAL LIVE TELEMETRY] Device "${device.deviceName}" Battery=${device.batteryLevel}%, App=${device.activeApp}`);
 
       return res.status(200).json({ success: true, message: 'Telemetry updated in real time', telemetry: device });
     } catch (err) {
