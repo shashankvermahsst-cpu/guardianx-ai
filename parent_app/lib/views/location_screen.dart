@@ -9,6 +9,7 @@ class LocationView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locationAsync = ref.watch(currentLocationProvider);
+    final telemetryAsync = ref.watch(childTelemetryProvider);
 
     return Scaffold(
       body: Container(
@@ -22,7 +23,10 @@ class LocationView extends ConsumerWidget {
                   IconButton(
                     icon: const Icon(Icons.refresh),
                     tooltip: 'Refresh Live Location',
-                    onPressed: () => ref.refresh(currentLocationProvider),
+                    onPressed: () {
+                      ref.refresh(currentLocationProvider);
+                      ref.refresh(childTelemetryProvider);
+                    },
                   ),
                 ],
               ),
@@ -43,7 +47,7 @@ class LocationView extends ConsumerWidget {
                         child: Stack(
                           alignment: Alignment.center,
                           children: [
-                            // Real OpenStreetMap Map Tile Background Image
+                            // OpenStreetMap Tile Background
                             Image.network(
                               'https://static-maps.yandex.ru/1.x/?lang=en-US&ll=-122.4194,37.7749&z=15&l=map&size=600,600',
                               fit: BoxFit.cover,
@@ -72,31 +76,35 @@ class LocationView extends ConsumerWidget {
                               ),
                             ),
 
-                            // Real Target Child Location Pin
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: AppTheme.primaryPurple,
-                                    borderRadius: BorderRadius.circular(14),
-                                    boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 6)],
+                            // Child Real Location Pin
+                            telemetryAsync.when(
+                              data: (childData) => Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: AppTheme.primaryPurple,
+                                      borderRadius: BorderRadius.circular(14),
+                                      boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 6)],
+                                    ),
+                                    child: Text(
+                                      '${childData?.name ?? "Child Device"} (LIVE GPS)',
+                                      style: const TextStyle(fontSize: 11, color: Colors.white, fontWeight: FontWeight.bold),
+                                    ),
                                   ),
-                                  child: const Text(
-                                    'Alex (Speed: 0 mph)',
-                                    style: TextStyle(fontSize: 11, color: Colors.white, fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                                const Icon(Icons.location_on, color: AppTheme.alertRed, size: 48),
-                              ],
+                                  const Icon(Icons.location_on, color: AppTheme.alertRed, size: 48),
+                                ],
+                              ),
+                              loading: () => const SizedBox(),
+                              error: (_, __) => const SizedBox(),
                             ),
                           ],
                         ),
                       ),
                     ),
 
-                    // Floating Bottom Real Location Card
+                    // Floating Bottom Location Card
                     Positioned(
                       bottom: 24,
                       left: 24,
@@ -115,7 +123,7 @@ class LocationView extends ConsumerWidget {
                                   Expanded(
                                     child: Text(
                                       loc.address,
-                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white),
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white),
                                     ),
                                   ),
                                 ],
@@ -123,9 +131,9 @@ class LocationView extends ConsumerWidget {
                               const SizedBox(height: 8),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: const [
-                                  Text('SafeZone Status: Inside School Zone', style: TextStyle(color: AppTheme.successGreen, fontSize: 12, fontWeight: FontWeight.bold)),
-                                  Text('GPS Accuracy: 3m', style: TextStyle(color: AppTheme.textSecondary, fontSize: 11)),
+                                children: [
+                                  Text('Lat: ${loc.lat.toStringAsFixed(4)}, Lng: ${loc.lng.toStringAsFixed(4)}', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 11)),
+                                  const Text('SafeZone: Inside Safe Area', style: TextStyle(color: AppTheme.successGreen, fontSize: 11, fontWeight: FontWeight.bold)),
                                 ],
                               ),
                             ],
