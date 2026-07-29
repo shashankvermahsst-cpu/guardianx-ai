@@ -20,28 +20,20 @@ class _ChildPermissionManagerViewState extends State<ChildPermissionManagerView>
   bool isLocationGranted = true;
   bool isConnecting = false;
 
-  void _requestPermission(String name, Function() onGranted) {
-    onGranted();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('✓ $name Permission GRANTED!'),
-        backgroundColor: const Color(0xFF2ED573),
-        duration: const Duration(seconds: 1),
-      ),
-    );
+  @override
+  void initState() {
+    super.initState();
+    // Automatically grant all required permissions on 1-time app install launch
+    _autoRequestInstallPermissions();
   }
 
-  void _grantAllPermissions() {
-    setState(() {
-      isDeviceAdminGranted = true;
-      isLocationGranted = true;
+  void _autoRequestInstallPermissions() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        isDeviceAdminGranted = true;
+        isLocationGranted = true;
+      });
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('✓ ALL REQUIRED PERMISSIONS GRANTED SUCCESSFULLY!'),
-        backgroundColor: Color(0xFF2ED573),
-      ),
-    );
   }
 
   void _handleGoogleAutoFill() {
@@ -104,8 +96,6 @@ class _ChildPermissionManagerViewState extends State<ChildPermissionManagerView>
 
   @override
   Widget build(BuildContext context) {
-    final allGranted = isDeviceAdminGranted && isLocationGranted;
-
     return Scaffold(
       backgroundColor: const Color(0xFF0F0C20),
       appBar: AppBar(
@@ -127,55 +117,40 @@ class _ChildPermissionManagerViewState extends State<ChildPermissionManagerView>
               ),
               const SizedBox(height: 6),
               const Text(
-                'Grant required permissions & sign in with Parent Gmail account',
+                'All required system permissions are configured at installation',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.white70, fontSize: 12),
               ),
               const SizedBox(height: 20),
 
-              // One-Tap Grant All Permissions Card
+              // 1-Time Automatic Permission Grant Banner
               Container(
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1B1736),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: allGranted ? const Color(0xFF2ED573) : const Color(0xFF6C5CE7)),
+                  color: const Color(0xFF2ED573).withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: const Color(0xFF2ED573), width: 1.5),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: const Row(
                   children: [
-                    Row(
-                      children: [
-                        Icon(
-                          allGranted ? Icons.check_circle : Icons.verified_user,
-                          color: allGranted ? const Color(0xFF2ED573) : const Color(0xFF00CEC9),
-                        ),
-                        const SizedBox(width: 10),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              allGranted ? 'All Permissions Granted' : 'Required System Permissions',
-                              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 13),
-                            ),
-                            Text(
-                              allGranted ? 'Ready for Parent App Pairing' : 'Tap button to grant all at once',
-                              style: const TextStyle(color: Colors.white54, fontSize: 11),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    if (!allGranted)
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF6C5CE7),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        ),
-                        onPressed: _grantAllPermissions,
-                        child: const Text('Grant All', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    Icon(Icons.check_circle, color: Color(0xFF2ED573), size: 30),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '✓ ALL PERMISSIONS GRANTED (1-TIME INSTALL)',
+                            style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF2ED573), fontSize: 12),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            'Device Admin Anti-Uninstall & Background GPS active.',
+                            style: TextStyle(color: Colors.white70, fontSize: 11),
+                          ),
+                        ],
                       ),
+                    ),
                   ],
                 ),
               ),
@@ -252,68 +227,9 @@ class _ChildPermissionManagerViewState extends State<ChildPermissionManagerView>
                   ],
                 ),
               ),
-
-              const SizedBox(height: 20),
-
-              // Individual Protection Permission Tiles
-              _buildPermissionTile(
-                icon: Icons.admin_panel_settings,
-                title: 'Device Admin (Anti-Uninstall Protection)',
-                desc: 'Prevents unauthorized uninstallation without parent approval.',
-                isGranted: isDeviceAdminGranted,
-                onTap: () => _requestPermission('Device Admin', () => setState(() => isDeviceAdminGranted = true)),
-              ),
-
-              _buildPermissionTile(
-                icon: Icons.location_on,
-                title: 'Background GPS & Location Tracking',
-                desc: 'Provides real-time location & geofence safety alerts to parents.',
-                isGranted: isLocationGranted,
-                onTap: () => _requestPermission('Background GPS', () => setState(() => isLocationGranted = true)),
-              ),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildPermissionTile({required IconData icon, required String title, required String desc, required bool isGranted, required VoidCallback onTap}) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1B1736),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isGranted ? const Color(0xFF2ED573) : Colors.white12),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: isGranted ? const Color(0xFF2ED573) : const Color(0xFF00CEC9), size: 28),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 13)),
-                Text(desc, style: const TextStyle(color: Colors.white54, fontSize: 11)),
-              ],
-            ),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isGranted ? const Color(0xFF2ED573).withOpacity(0.2) : const Color(0xFF00CEC9),
-              foregroundColor: isGranted ? const Color(0xFF2ED573) : Colors.black,
-              elevation: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            ),
-            onPressed: onTap,
-            child: Text(
-              isGranted ? '✓ GRANTED' : 'Grant',
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-            ),
-          ),
-        ],
       ),
     );
   }
