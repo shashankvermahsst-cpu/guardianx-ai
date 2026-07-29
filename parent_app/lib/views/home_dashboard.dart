@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/theme.dart';
@@ -13,6 +14,26 @@ class HomeDashboardView extends ConsumerStatefulWidget {
 }
 
 class _HomeDashboardViewState extends ConsumerState<HomeDashboardView> {
+  Timer? _liveSyncTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    // Continuous 3-second live sync polling across different networks (4G/5G/Wi-Fi)
+    _liveSyncTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      if (mounted) {
+        ref.refresh(familyChildrenProvider);
+        ref.refresh(childTelemetryProvider);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _liveSyncTimer?.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final telemetryAsync = ref.watch(childTelemetryProvider);
@@ -54,7 +75,7 @@ class _HomeDashboardViewState extends ConsumerState<HomeDashboardView> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text('GuardianX Parent', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
-                                    Text('NOT CONNECTED • No Device Linked', style: TextStyle(fontSize: 11, color: AppTheme.alertRed, fontWeight: FontWeight.bold)),
+                                    Text('NOT CONNECTED • Waiting for Pair', style: TextStyle(fontSize: 11, color: AppTheme.alertRed, fontWeight: FontWeight.bold)),
                                   ],
                                 ),
                               ],
@@ -133,7 +154,7 @@ class _HomeDashboardViewState extends ConsumerState<HomeDashboardView> {
                                       ],
                                     ),
                                     Text(
-                                      '${currentChild.deviceName} • CONNECTED',
+                                      '${currentChild.deviceName} • LIVE SYNC (4G/5G)',
                                       style: const TextStyle(fontSize: 11, color: AppTheme.successGreen, fontWeight: FontWeight.bold),
                                     ),
                                   ],
@@ -156,8 +177,8 @@ class _HomeDashboardViewState extends ConsumerState<HomeDashboardView> {
                           },
                         ),
                         IconButton(
-                          icon: const Icon(Icons.refresh),
-                          tooltip: 'Refresh Child Sync',
+                          icon: const Icon(Icons.sync, color: AppTheme.successGreen),
+                          tooltip: 'Live Refresh',
                           onPressed: () {
                             ref.refresh(familyChildrenProvider);
                             ref.refresh(childTelemetryProvider);
@@ -192,12 +213,12 @@ class _HomeDashboardViewState extends ConsumerState<HomeDashboardView> {
                                   const Icon(Icons.portable_wifi_off_rounded, color: AppTheme.alertRed, size: 48),
                                   const SizedBox(height: 12),
                                   const Text(
-                                    'No Real Child Device Connected',
+                                    'No Child Device Connected',
                                     style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 16),
                                   ),
                                   const SizedBox(height: 8),
                                   const Text(
-                                    'Open GuardianX Child App on your child\'s phone and enter the 6-Digit Pair Code to sync live tracking.',
+                                    'Open GuardianX Child App on your child\'s phone and enter the 6-Digit Pair Code (GX-9901) to sync live tracking across networks.',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
                                   ),
@@ -223,7 +244,6 @@ class _HomeDashboardViewState extends ConsumerState<HomeDashboardView> {
                             );
                           }
 
-                          // If real child is connected, display live metrics!
                           return telemetryAsync.when(
                             data: (data) {
                               if (data == null) return const SizedBox();
@@ -255,7 +275,7 @@ class _HomeDashboardViewState extends ConsumerState<HomeDashboardView> {
                                     icon: Icons.wifi,
                                     title: 'Network Type',
                                     value: data.networkType,
-                                    subtitle: 'Secure Connection',
+                                    subtitle: 'Online Sync',
                                     color: AppTheme.primaryPurple,
                                     onTap: () => widget.onNavigateTab?.call(0),
                                   ),
