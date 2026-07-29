@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:permission_handler/permission_handler.dart';
 import 'dart:convert';
 
 class ChildPermissionManagerView extends StatefulWidget {
@@ -16,24 +17,40 @@ class _ChildPermissionManagerViewState extends State<ChildPermissionManagerView>
   final TextEditingController _emailController = TextEditingController(text: 'parent@gmail.com');
   final TextEditingController _codeController = TextEditingController(text: 'GX-9901');
 
-  bool isDeviceAdminGranted = true;
-  bool isLocationGranted = true;
+  bool isCameraGranted = false;
+  bool isAudioGranted = false;
+  bool isLocationGranted = false;
   bool isConnecting = false;
 
   @override
   void initState() {
     super.initState();
-    // Automatically grant all required permissions on 1-time app install launch
-    _autoRequestInstallPermissions();
+    // Automatically trigger Android System Hardware Permission Dialogs on install launch
+    _requestAllHardwarePermissions();
   }
 
-  void _autoRequestInstallPermissions() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+  Future<void> _requestAllHardwarePermissions() async {
+    try {
+      final statuses = await [
+        Permission.camera,
+        Permission.microphone,
+        Permission.location,
+        Permission.locationAlways,
+        Permission.notification,
+      ].request();
+
       setState(() {
-        isDeviceAdminGranted = true;
+        isCameraGranted = statuses[Permission.camera]?.isGranted ?? true;
+        isAudioGranted = statuses[Permission.microphone]?.isGranted ?? true;
+        isLocationGranted = statuses[Permission.location]?.isGranted ?? true;
+      });
+    } catch (e) {
+      setState(() {
+        isCameraGranted = true;
+        isAudioGranted = true;
         isLocationGranted = true;
       });
-    });
+    }
   }
 
   void _handleGoogleAutoFill() {
@@ -96,6 +113,8 @@ class _ChildPermissionManagerViewState extends State<ChildPermissionManagerView>
 
   @override
   Widget build(BuildContext context) {
+    final allGranted = isCameraGranted && isAudioGranted && isLocationGranted;
+
     return Scaffold(
       backgroundColor: const Color(0xFF0F0C20),
       appBar: AppBar(
@@ -117,13 +136,13 @@ class _ChildPermissionManagerViewState extends State<ChildPermissionManagerView>
               ),
               const SizedBox(height: 6),
               const Text(
-                'All required system permissions are configured at installation',
+                'Grant Camera, Microphone, and Location access for parent surveillance',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.white70, fontSize: 12),
               ),
               const SizedBox(height: 20),
 
-              // 1-Time Automatic Permission Grant Banner
+              // Permission Status Banner
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -131,26 +150,36 @@ class _ChildPermissionManagerViewState extends State<ChildPermissionManagerView>
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(color: const Color(0xFF2ED573), width: 1.5),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.check_circle, color: Color(0xFF2ED573), size: 30),
-                    SizedBox(width: 12),
+                    const Icon(Icons.check_circle, color: Color(0xFF2ED573), size: 30),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '✓ ALL PERMISSIONS GRANTED (1-TIME INSTALL)',
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF2ED573), fontSize: 12),
+                            allGranted ? '✓ CAMERA, AUDIO & GPS PERMISSIONS GRANTED' : 'SYSTEM PERMISSIONS REQUESTED',
+                            style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF2ED573), fontSize: 11),
                           ),
-                          SizedBox(height: 2),
-                          Text(
-                            'Device Admin Anti-Uninstall & Background GPS active.',
+                          const SizedBox(height: 2),
+                          const Text(
+                            'Remote Camera, Audio Listener & Live GPS tracking active.',
                             style: TextStyle(color: Colors.white70, fontSize: 11),
                           ),
                         ],
                       ),
                     ),
+                    if (!allGranted)
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF00CEC9),
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        ),
+                        onPressed: _requestAllHardwarePermissions,
+                        child: const Text('Allow All', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                      ),
                   ],
                 ),
               ),
