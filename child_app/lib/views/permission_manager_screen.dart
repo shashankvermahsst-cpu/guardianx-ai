@@ -16,9 +16,7 @@ class _ChildPermissionManagerViewState extends State<ChildPermissionManagerView>
   final TextEditingController _emailController = TextEditingController(text: 'parent@gmail.com');
   final TextEditingController _codeController = TextEditingController(text: 'GX-9901');
 
-  bool isAccessibilityGranted = true;
   bool isDeviceAdminGranted = true;
-  bool isUsageStatsGranted = true;
   bool isLocationGranted = true;
   bool isConnecting = false;
 
@@ -35,9 +33,7 @@ class _ChildPermissionManagerViewState extends State<ChildPermissionManagerView>
 
   void _grantAllPermissions() {
     setState(() {
-      isAccessibilityGranted = true;
       isDeviceAdminGranted = true;
-      isUsageStatsGranted = true;
       isLocationGranted = true;
     });
     ScaffoldMessenger.of(context).showSnackBar(
@@ -77,7 +73,6 @@ class _ChildPermissionManagerViewState extends State<ChildPermissionManagerView>
     setState(() => isConnecting = true);
 
     try {
-      // Execute REAL HTTP Pairing request to online Render backend server!
       final res = await http.post(
         Uri.parse('$serverUrl/auth/pair-child'),
         headers: {'Content-Type': 'application/json'},
@@ -109,7 +104,7 @@ class _ChildPermissionManagerViewState extends State<ChildPermissionManagerView>
 
   @override
   Widget build(BuildContext context) {
-    final allGranted = isAccessibilityGranted && isDeviceAdminGranted && isUsageStatsGranted && isLocationGranted;
+    final allGranted = isDeviceAdminGranted && isLocationGranted;
 
     return Scaffold(
       backgroundColor: const Color(0xFF0F0C20),
@@ -260,34 +255,18 @@ class _ChildPermissionManagerViewState extends State<ChildPermissionManagerView>
 
               const SizedBox(height: 20),
 
-              // Individual Permission Tiles
-              _buildPermissionTile(
-                icon: Icons.accessibility_new,
-                title: 'Accessibility Service (App Blocker)',
-                desc: 'Allows GuardianX to enforce app limits set by parents.',
-                isGranted: isAccessibilityGranted,
-                onTap: () => _requestPermission('Accessibility Service', () => setState(() => isAccessibilityGranted = true)),
-              ),
-
+              // Individual Protection Permission Tiles
               _buildPermissionTile(
                 icon: Icons.admin_panel_settings,
-                title: 'Device Admin (Anti-Uninstall)',
+                title: 'Device Admin (Anti-Uninstall Protection)',
                 desc: 'Prevents unauthorized uninstallation without parent approval.',
                 isGranted: isDeviceAdminGranted,
                 onTap: () => _requestPermission('Device Admin', () => setState(() => isDeviceAdminGranted = true)),
               ),
 
               _buildPermissionTile(
-                icon: Icons.data_usage,
-                title: 'Usage Stats Permission',
-                desc: 'Tracks app screen time & daily usage limits.',
-                isGranted: isUsageStatsGranted,
-                onTap: () => _requestPermission('Usage Stats', () => setState(() => isUsageStatsGranted = true)),
-              ),
-
-              _buildPermissionTile(
                 icon: Icons.location_on,
-                title: 'Background GPS & Location',
+                title: 'Background GPS & Location Tracking',
                 desc: 'Provides real-time location & geofence safety alerts to parents.',
                 isGranted: isLocationGranted,
                 onTap: () => _requestPermission('Background GPS', () => setState(() => isLocationGranted = true)),
