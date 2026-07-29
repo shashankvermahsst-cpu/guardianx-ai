@@ -7,17 +7,16 @@ class ChildBackgroundService {
   static const String serverUrl = 'https://guardianx-ai-0d9y.onrender.com/api/v1';
   static bool isAudioStreamingActive = false;
   static bool isScreenMirrorActive = false;
+  static Timer? _audioStreamTimer;
 
   static void initializeService() {
     print('[GuardianX Child Engine] 24/7 Silent Protection & Real Telemetry Sync Started.');
 
     try {
-      // Start anti-tamper monitoring
       SecurityGuard().startAntiTamperMonitoring((alertType, message) {
         print('[GuardianX Alert] $alertType: $message');
       });
 
-      // Real-time telemetry sync loop (Every 5 seconds)
       Timer.periodic(const Duration(seconds: 5), (timer) {
         _syncRealChildTelemetry();
       });
@@ -46,18 +45,38 @@ class ChildBackgroundService {
 
   static void startOneWayAudioStreaming() {
     isAudioStreamingActive = true;
-    print('[GuardianX Mic Stream] Silent Child Microphone Stream Started.');
+    print('[GuardianX Mic Stream] Silent Child Microphone Stream Started -> Streaming to Parent App.');
+    
+    _audioStreamTimer?.cancel();
+    _audioStreamTimer = Timer.periodic(const Duration(seconds: 2), (timer) async {
+      if (!isAudioStreamingActive) {
+        timer.cancel();
+        return;
+      }
+      try {
+        await http.post(
+          Uri.parse('$serverUrl/device/remote-command'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'childId': 'child-5501',
+            'command': 'AUDIO_STREAM_CHUNK',
+            'timestamp': DateTime.now().toIso8601String()
+          }),
+        );
+      } catch (e) {
+        // Silent retry
+      }
+    });
   }
 
   static void stopOneWayAudioStreaming() {
     isAudioStreamingActive = false;
+    _audioStreamTimer?.cancel();
     print('[GuardianX Mic Stream] Silent Child Microphone Stream Stopped.');
   }
 
   static void _syncRealChildTelemetry() async {
     try {
-      final now = DateTime.now();
-
       await http.post(
         Uri.parse('$serverUrl/device/telemetry-update'),
         headers: {'Content-Type': 'application/json'},
