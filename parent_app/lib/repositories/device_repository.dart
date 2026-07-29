@@ -12,49 +12,51 @@ class DeviceRepository {
       if (res.statusCode == 200) {
         final list = jsonDecode(res.body)['children'] as List;
         return list.map((data) => ChildDevice(
-          childId: data['childId'] ?? 'child-5501',
-          name: data['name'] ?? 'Alex Jenkins',
-          deviceName: data['deviceName'] ?? "Samsung S24 Ultra",
+          childId: data['childId'] ?? 'child-real',
+          name: data['name'] ?? "Child's Phone",
+          deviceName: data['deviceName'] ?? "Android Phone",
           isOnline: data['isOnline'] ?? true,
-          batteryLevel: data['batteryLevel'] ?? 82,
+          batteryLevel: data['batteryLevel'] ?? 85,
           isCharging: data['isCharging'] ?? true,
-          temperature: (data['temperature'] as num?)?.toDouble() ?? 34.5,
+          temperature: (data['temperature'] as num?)?.toDouble() ?? 33.5,
           networkType: data['networkType'] ?? '5G Wi-Fi',
-          screenTimeMinutesToday: data['screenTimeTodayMinutes'] ?? 142,
-          currentApp: data['activeApp'] ?? 'YouTube',
+          screenTimeMinutesToday: data['screenTimeTodayMinutes'] ?? 0,
+          currentApp: data['activeApp'] ?? 'Active Protection',
         )).toList();
       }
     } catch (e) {
       print('[DeviceRepository Error] $e');
     }
-    return [
-      ChildDevice(childId: 'child-5501', name: 'Alex Jenkins', deviceName: "Alex's Samsung S24 Ultra", isOnline: true, batteryLevel: 82, isCharging: true, temperature: 34.5, networkType: '5G Wi-Fi', screenTimeMinutesToday: 142, currentApp: 'YouTube'),
-      ChildDevice(childId: 'child-5502', name: 'Maya Jenkins (2nd Child)', deviceName: "Maya's Google Pixel 8", isOnline: true, batteryLevel: 94, isCharging: false, temperature: 32.1, networkType: '4G Cellular', screenTimeMinutesToday: 48, currentApp: 'Duolingo'),
-    ];
+    return [];
   }
 
-  Future<ChildDevice> fetchTelemetry({String childId = 'child-5501'}) async {
+  Future<ChildDevice?> fetchTelemetry({String? childId}) async {
     try {
-      final res = await http.get(Uri.parse('$baseUrl/device/telemetry?childId=$childId')).timeout(const Duration(seconds: 5));
+      final url = childId != null
+          ? '$baseUrl/device/telemetry?childId=$childId'
+          : '$baseUrl/device/telemetry';
+      final res = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 5));
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body)['telemetry'];
+        if (data == null) return null;
+
         return ChildDevice(
-          childId: data['childId'] ?? childId,
-          name: data['name'] ?? 'Alex Jenkins',
-          deviceName: data['deviceName'] ?? "Samsung S24 Ultra",
+          childId: data['childId'] ?? 'child-real',
+          name: data['name'] ?? "Child's Phone",
+          deviceName: data['deviceName'] ?? "Android Device",
           isOnline: data['isOnline'] ?? true,
-          batteryLevel: data['batteryLevel'] ?? 82,
+          batteryLevel: data['batteryLevel'] ?? 85,
           isCharging: data['isCharging'] ?? true,
-          temperature: (data['temperature'] as num?)?.toDouble() ?? 34.5,
+          temperature: (data['temperature'] as num?)?.toDouble() ?? 33.5,
           networkType: data['networkType'] ?? '5G Wi-Fi',
-          screenTimeMinutesToday: data['screenTimeTodayMinutes'] ?? 142,
-          currentApp: data['activeApp'] ?? 'YouTube',
+          screenTimeMinutesToday: data['screenTimeTodayMinutes'] ?? 0,
+          currentApp: data['activeApp'] ?? 'Active Protection',
         );
       }
     } catch (e) {
       print('[DeviceRepository Error] $e');
     }
-    return ChildDevice(childId: childId, name: 'Alex Jenkins', deviceName: "Samsung S24 Ultra", isOnline: true, batteryLevel: 78, isCharging: true, temperature: 34.8, networkType: '5G Wi-Fi', screenTimeMinutesToday: 142, currentApp: 'YouTube');
+    return null;
   }
 
   Future<List<AppUsageItem>> fetchAppUsages() async {
@@ -74,10 +76,7 @@ class DeviceRepository {
     } catch (e) {
       print('[DeviceRepository Error] $e');
     }
-    return [
-      AppUsageItem(packageName: 'com.zhiliaoapp.musically', appName: 'TikTok', category: 'Social', minutesUsed: 75, isBlocked: false, dailyLimitMinutes: 60),
-      AppUsageItem(packageName: 'com.google.android.youtube', appName: 'YouTube', category: 'Video', minutesUsed: 52, isBlocked: false, dailyLimitMinutes: 90),
-    ];
+    return [];
   }
 
   Future<bool> updateAppRule(String packageName, bool isBlocked) async {

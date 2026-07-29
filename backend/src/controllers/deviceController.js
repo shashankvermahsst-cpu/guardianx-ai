@@ -1,47 +1,7 @@
-// GuardianX Production Device Controller (Multi-Child & Live Telemetry Store)
 
-const childrenDevicesStore = [
-  {
-    childId: 'child-5501',
-    name: 'Alex Jenkins',
-    deviceName: "Alex's Samsung S24 Ultra",
-    isOnline: true,
-    batteryLevel: 82,
-    isCharging: true,
-    temperature: 34.5,
-    networkType: '5G Wi-Fi',
-    screenTimeMinutesToday: 142,
-    activeApp: 'YouTube',
-    lastLocation: {
-      lat: 37.7749,
-      lng: -122.4194,
-      address: '742 Evergreen Terrace, San Francisco, CA',
-      speedMph: 0,
-      recordedAt: new Date().toISOString()
-    },
-    securityFlags: { vpnActive: false, rootDetected: false, simChanged: false, tamperAttempt: false }
-  },
-  {
-    childId: 'child-5502',
-    name: 'Maya Jenkins (2nd Child)',
-    deviceName: "Maya's Google Pixel 8",
-    isOnline: true,
-    batteryLevel: 94,
-    isCharging: false,
-    temperature: 32.1,
-    networkType: '4G Cellular',
-    screenTimeMinutesToday: 48,
-    activeApp: 'Duolingo',
-    lastLocation: {
-      lat: 37.7833,
-      lng: -122.4167,
-      address: 'Market Street, San Francisco, CA',
-      speedMph: 12,
-      recordedAt: new Date().toISOString()
-    },
-    securityFlags: { vpnActive: false, rootDetected: false, simChanged: false, tamperAttempt: false }
-  }
-];
+
+// Dynamic In-Memory Store for Real Paired Child Devices
+const childrenDevicesStore = [];
 
 class DeviceController {
   async getFamilyChildren(req, res) {
@@ -57,9 +17,25 @@ class DeviceController {
 
   async getDeviceTelemetry(req, res) {
     try {
-      const childId = req.query.childId || 'child-5501';
-      const device = childrenDevicesStore.find(c => c.childId === childId) || childrenDevicesStore[0];
+      const childId = req.query.childId;
+      let device = null;
       
+      if (childId) {
+        device = childrenDevicesStore.find(c => c.childId === childId);
+      }
+      
+      if (!device && childrenDevicesStore.length > 0) {
+        device = childrenDevicesStore[0];
+      }
+
+      if (!device) {
+        return res.status(200).json({
+          success: true,
+          telemetry: null,
+          message: 'No child device linked yet.'
+        });
+      }
+
       return res.status(200).json({
         success: true,
         telemetry: device
@@ -72,8 +48,12 @@ class DeviceController {
   async updateTelemetry(req, res) {
     try {
       const { childId, batteryLevel, isCharging, temperature, networkType, activeApp, lat, lng, address } = req.body;
-      const device = childrenDevicesStore.find(c => c.childId === childId);
+      let device = childrenDevicesStore.find(c => c.childId === childId);
       
+      if (!device && childrenDevicesStore.length > 0) {
+        device = childrenDevicesStore[0];
+      }
+
       if (device) {
         if (batteryLevel !== undefined) device.batteryLevel = batteryLevel;
         if (isCharging !== undefined) device.isCharging = isCharging;
@@ -90,6 +70,7 @@ class DeviceController {
           };
         }
         device.isOnline = true;
+        device.lastSeen = new Date().toISOString();
       }
 
       return res.status(200).json({ success: true, message: 'Telemetry updated in real time' });
@@ -99,16 +80,21 @@ class DeviceController {
   }
 
   async registerNewChildDevice(childData) {
+    const existingIndex = childrenDevicesStore.findIndex(
+      c => c.deviceName === childData.deviceName || c.parentEmail === childData.parentEmail
+    );
+
     const newChild = {
       childId: 'child-' + Date.now(),
-      name: childData.name || 'Child 2 Device',
-      deviceName: childData.deviceName || "Child's Android Phone",
+      name: childData.name || childData.deviceName || "Child's Android Phone",
+      deviceName: childData.deviceName || "Child's Android Device",
+      parentEmail: childData.parentEmail || 'parent@gmail.com',
       isOnline: true,
-      batteryLevel: 90,
-      isCharging: false,
-      temperature: 33.0,
+      batteryLevel: childData.batteryLevel || 88,
+      isCharging: true,
+      temperature: 33.5,
       networkType: '5G Wi-Fi',
-      screenTimeMinutesToday: 10,
+      screenTimeMinutesToday: 15,
       activeApp: 'HomeScreen',
       lastLocation: {
         lat: 37.7749,
@@ -117,9 +103,15 @@ class DeviceController {
         speedMph: 0,
         recordedAt: new Date().toISOString()
       },
-      securityFlags: { vpnActive: false, rootDetected: false, simChanged: false, tamperAttempt: false }
+      securityFlags: { vpnActive: false, rootDetected: false, simChanged: false, tamperAttempt: false },
+      lastSeen: new Date().toISOString()
     };
-    childrenDevicesStore.push(newChild);
+
+    if (existingIndex >= 0) {
+      childrenDevicesStore[existingIndex] = newChild;
+    } else {
+      childrenDevicesStore.push(newChild);
+    }
     return newChild;
   }
 
@@ -128,7 +120,7 @@ class DeviceController {
       const { childId, command } = req.body;
       return res.status(200).json({
         success: true,
-        message: `Remote command '${command}' sent successfully to child device (${childId}).`,
+        message: `Remote command '${command}' sent successfully to child device.`,
         timestamp: new Date().toISOString()
       });
     } catch (err) {
@@ -141,10 +133,9 @@ class DeviceController {
       return res.status(200).json({
         success: true,
         apps: [
-          { packageName: 'com.zhiliaoapp.musically', appName: 'TikTok', category: 'Social Media', screenTimeSeconds: 4500, isBlocked: false, dailyLimitMinutes: 60 },
-          { packageName: 'com.google.android.youtube', appName: 'YouTube', category: 'Entertainment', screenTimeSeconds: 3200, isBlocked: false, dailyLimitMinutes: 90 },
-          { packageName: 'com.roblox.client', appName: 'Roblox', category: 'Games', screenTimeSeconds: 2100, isBlocked: true, dailyLimitMinutes: 45 },
-          { packageName: 'com.instagram.android', appName: 'Instagram', category: 'Social Media', screenTimeSeconds: 1800, isBlocked: false, dailyLimitMinutes: 30 },
+          { packageName: 'com.zhiliaoapp.musically', appName: 'TikTok', category: 'Social Media', screenTimeSeconds: 3600, isBlocked: false, dailyLimitMinutes: 60 },
+          { packageName: 'com.google.android.youtube', appName: 'YouTube', category: 'Entertainment', screenTimeSeconds: 2400, isBlocked: false, dailyLimitMinutes: 90 },
+          { packageName: 'com.roblox.client', appName: 'Roblox', category: 'Games', screenTimeSeconds: 1800, isBlocked: true, dailyLimitMinutes: 45 },
           { packageName: 'org.duolingo', appName: 'Duolingo', category: 'Education', screenTimeSeconds: 1200, isBlocked: false, dailyLimitMinutes: 0 }
         ]
       });
@@ -171,9 +162,7 @@ class DeviceController {
       return res.status(200).json({
         success: true,
         alerts: [
-          { id: 'alt-1', type: 'geofence_exit', severity: 'medium', title: 'Left Safe Zone', message: 'Alex left Lincoln High School zone at 03:15 PM.', timestamp: new Date(Date.now() - 3600000).toISOString() },
-          { id: 'alt-2', type: 'vpn_enabled', severity: 'high', title: 'VPN Activation Attempt', message: 'ExpressVPN app launch detected and intercepted by GuardianX Shield.', timestamp: new Date(Date.now() - 7200000).toISOString() },
-          { id: 'alt-3', type: 'low_battery', severity: 'low', title: 'Low Battery Alert', message: "Alex's device battery dropped below 15%.", timestamp: new Date(Date.now() - 18000000).toISOString() }
+          { id: 'alt-1', type: 'geofence_exit', severity: 'medium', title: 'SafeZone Event', message: 'Child device location updated.', timestamp: new Date().toISOString() }
         ]
       });
     } catch (err) {

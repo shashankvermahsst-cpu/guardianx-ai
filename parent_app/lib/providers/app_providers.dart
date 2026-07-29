@@ -17,9 +17,9 @@ final familyChildrenProvider = FutureProvider<List<ChildDevice>>((ref) async {
   return repo.fetchFamilyChildren();
 });
 
-final selectedChildIdProvider = StateProvider<String>((ref) => 'child-5501');
+final selectedChildIdProvider = StateProvider<String?>((ref) => null);
 
-final childTelemetryProvider = FutureProvider<ChildDevice>((ref) async {
+final childTelemetryProvider = FutureProvider<ChildDevice?>((ref) async {
   final repo = ref.watch(deviceRepositoryProvider);
   final childId = ref.watch(selectedChildIdProvider);
   return repo.fetchTelemetry(childId: childId);
@@ -46,7 +46,7 @@ class AIChatNotifier extends StateNotifier<List<AIChatMessage>> {
       : super([
           AIChatMessage(
             sender: 'ai',
-            text: 'Hello! I am GuardianX AI Assistant. Ask me anything about Alex or Maya\'s screen time, location, or app usage.',
+            text: 'Hello! I am GuardianX AI Assistant. Ask me anything about your child\'s screen time, location, or app usage.',
             time: DateTime.now(),
           )
         ]);

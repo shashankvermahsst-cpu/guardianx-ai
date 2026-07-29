@@ -106,7 +106,7 @@ body {
   line-height: 1.15;
   margin-bottom: 20px;
   background: linear-gradient(135deg, #ffffff 30%, var(--accent-blue));
-  -webkit-background-clip: text;
+ 
   -webkit-text-fill-color: transparent;
 }
 

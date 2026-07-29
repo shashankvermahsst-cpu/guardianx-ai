@@ -13,8 +13,6 @@ class HomeDashboardView extends ConsumerStatefulWidget {
 }
 
 class _HomeDashboardViewState extends ConsumerState<HomeDashboardView> {
-  bool isChildConnected = true;
-
   @override
   Widget build(BuildContext context) {
     final telemetryAsync = ref.watch(childTelemetryProvider);
@@ -28,7 +26,7 @@ class _HomeDashboardViewState extends ConsumerState<HomeDashboardView> {
         child: SafeArea(
           child: Column(
             children: [
-              // Header with Multi-Child Device Selector Dropdown
+              // Header Bar
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                 child: Row(
@@ -36,10 +34,39 @@ class _HomeDashboardViewState extends ConsumerState<HomeDashboardView> {
                   children: [
                     childrenAsync.when(
                       data: (childrenList) {
+                        if (childrenList.isEmpty) {
+                          return GestureDetector(
+                            onTap: () => widget.onNavigateTab?.call(5),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: AppTheme.alertRed, width: 2),
+                                    color: AppTheme.cardDarkBackground,
+                                  ),
+                                  child: const Icon(Icons.phonelink_off, color: AppTheme.alertRed, size: 20),
+                                ),
+                                const SizedBox(width: 10),
+                                const Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('GuardianX Parent', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                                    Text('NOT CONNECTED • No Device Linked', style: TextStyle(fontSize: 11, color: AppTheme.alertRed, fontWeight: FontWeight.bold)),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+
                         final currentChild = childrenList.firstWhere(
                           (c) => c.childId == selectedChildId,
                           orElse: () => childrenList.first,
                         );
+
                         return PopupMenuButton<String>(
                           initialValue: currentChild.childId,
                           onSelected: (val) {
@@ -68,7 +95,7 @@ class _HomeDashboardViewState extends ConsumerState<HomeDashboardView> {
                                 children: [
                                   Icon(Icons.add_circle, color: AppTheme.successGreen, size: 20),
                                   SizedBox(width: 8),
-                                  Text('+ Link 2nd Child Device', style: TextStyle(color: AppTheme.successGreen, fontWeight: FontWeight.bold)),
+                                  Text('+ Link Another Child Device', style: TextStyle(color: AppTheme.successGreen, fontWeight: FontWeight.bold)),
                                 ],
                               ),
                             ),
@@ -87,15 +114,10 @@ class _HomeDashboardViewState extends ConsumerState<HomeDashboardView> {
                                   height: 40,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: isChildConnected ? AppTheme.successGreen : AppTheme.alertRed,
-                                      width: 2,
-                                    ),
-                                    image: const DecorationImage(
-                                      image: NetworkImage('https://i.pravatar.cc/150?img=12'),
-                                      fit: BoxFit.cover,
-                                    ),
+                                    border: Border.all(color: AppTheme.successGreen, width: 2),
+                                    color: AppTheme.primaryPurple,
                                   ),
+                                  child: const Icon(Icons.person, color: Colors.white, size: 22),
                                 ),
                                 const SizedBox(width: 10),
                                 Column(
@@ -111,8 +133,8 @@ class _HomeDashboardViewState extends ConsumerState<HomeDashboardView> {
                                       ],
                                     ),
                                     Text(
-                                      '${currentChild.deviceName} • Online',
-                                      style: const TextStyle(fontSize: 11, color: AppTheme.accentBlue),
+                                      '${currentChild.deviceName} • CONNECTED',
+                                      style: const TextStyle(fontSize: 11, color: AppTheme.successGreen, fontWeight: FontWeight.bold),
                                     ),
                                   ],
                                 ),
@@ -128,14 +150,14 @@ class _HomeDashboardViewState extends ConsumerState<HomeDashboardView> {
                       children: [
                         IconButton(
                           icon: const Icon(Icons.qr_code_2_rounded, color: AppTheme.accentBlue),
-                          tooltip: 'Link 2nd Child Device',
+                          tooltip: 'Link Child Device',
                           onPressed: () {
                             Navigator.push(context, MaterialPageRoute(builder: (_) => const PairChildView()));
                           },
                         ),
                         IconButton(
                           icon: const Icon(Icons.refresh),
-                          tooltip: 'Refresh Child Connection',
+                          tooltip: 'Refresh Child Sync',
                           onPressed: () {
                             ref.refresh(familyChildrenProvider);
                             ref.refresh(childTelemetryProvider);
@@ -147,18 +169,65 @@ class _HomeDashboardViewState extends ConsumerState<HomeDashboardView> {
                 ),
               ),
 
-              // Scrollable Dashboard Body
+              // Body Content
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
-                      // Status Telemetry Cards Grid
-                      if (isChildConnected)
-                        telemetryAsync.when(
-                          data: (data) => Column(
-                            children: [
-                              GridView.count(
+                      // Render children connection check
+                      childrenAsync.when(
+                        data: (childrenList) {
+                          if (childrenList.isEmpty) {
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 20),
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: AppTheme.alertRed.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: AppTheme.alertRed, width: 1.5),
+                              ),
+                              child: Column(
+                                children: [
+                                  const Icon(Icons.portable_wifi_off_rounded, color: AppTheme.alertRed, size: 48),
+                                  const SizedBox(height: 12),
+                                  const Text(
+                                    'No Real Child Device Connected',
+                                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 16),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  const Text(
+                                    'Open GuardianX Child App on your child\'s phone and enter the 6-Digit Pair Code to sync live tracking.',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+                                  ),
+                                  const SizedBox(height: 18),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    height: 48,
+                                    child: ElevatedButton.icon(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: AppTheme.primaryPurple,
+                                        foregroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                      ),
+                                      icon: const Icon(Icons.qr_code_2),
+                                      label: const Text('Get 6-Digit Pair Code & QR Code', style: TextStyle(fontWeight: FontWeight.bold)),
+                                      onPressed: () {
+                                        Navigator.push(context, MaterialPageRoute(builder: (_) => const PairChildView()));
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+
+                          // If real child is connected, display live metrics!
+                          return telemetryAsync.when(
+                            data: (data) {
+                              if (data == null) return const SizedBox();
+                              return GridView.count(
                                 crossAxisCount: 2,
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
@@ -199,12 +268,15 @@ class _HomeDashboardViewState extends ConsumerState<HomeDashboardView> {
                                     onTap: () => widget.onNavigateTab?.call(6),
                                   ),
                                 ],
-                              ),
-                            ],
-                          ),
-                          loading: () => const CircularProgressIndicator(),
-                          error: (err, _) => Text('Error loading telemetry: $err'),
-                        ),
+                              );
+                            },
+                            loading: () => const CircularProgressIndicator(),
+                            error: (err, _) => Text('Error loading telemetry: $err'),
+                          );
+                        },
+                        loading: () => const CircularProgressIndicator(),
+                        error: (err, _) => const SizedBox(),
+                      ),
 
                       const SizedBox(height: 20),
 
@@ -229,7 +301,7 @@ class _HomeDashboardViewState extends ConsumerState<HomeDashboardView> {
 
                       const SizedBox(height: 24),
 
-                      // Recent Security & Location Alerts
+                      // Security Alerts Section
                       const Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
